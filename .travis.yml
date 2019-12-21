@@ -1,0 +1,25 @@
+# ===== DO NOT MODIFY THIS FILE =====
+
+language: node_js
+node_js:
+  - 10
+
+before_script:
+  - npm install -g ganache-cli
+  - npm install -g truffle@v5.0.5
+  - npm install
+  - ganache-cli &
+
+jobs:
+  include:
+    - language: node_js
+      node_js: 10
+      script:
+        - git clone https://gist.github.com/f2da4709b636dce11de911975db6c818.git
+        - git clone https://gist.github.com/ea3a6a3e8c9bb077c51a727ae5e673e9.git
+        - rm ./test/ProjectSubmission.test.js
+        - rm ./test/test.app.js
+        - mv ./f2da4709b636dce11de911975db6c818/certification-ProjectSubmission.test.js ./test/ProjectSubmission.test.js
+        - mv ./ea3a6a3e8c9bb077c51a727ae5e673e9/test.app.js ./test/test.app.js
+        - sleep 5
+        - truffle test

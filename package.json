@@ -1,0 +1,26 @@
+{
+  "name": "project-submission",
+  "version": "1.0.0",
+  "description": "In this coding assignment you will have to implement the smart contract Project Submission following the instructions provided in this document.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test/test.app.js --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/consensys-academy-certification/project-submission.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/consensys-academy-certification/project-submission/issues"
+  },
+  "homepage": "https://github.com/consensys-academy-certification/project-submission#readme",
+  "dependencies": {
+    "mocha": "^6.2.2",
+    "web3": "^1.2.2"
+  }
+}

@@ -1,0 +1,16 @@
+# ===== DO NOT MODIFY THIS FILE =====
+
+language: node_js
+  - "10"
+
+before_script:
+  - npm install -g ganache-cli
+  - npm install -g truffle@5.0.0
+
+script:
+  - git clone https://gist.github.com/f2da4709b636dce11de911975db6c818.git
+  - rm ./test/ProjectSubmission.test.js
+  - mv ./f2da4709b636dce11de911975db6c818/certification-SupplyChain.test.js ./test/ProjectSubmission.test.js
+  - ganache-cli &
+  - sleep 5
+  - truffle test

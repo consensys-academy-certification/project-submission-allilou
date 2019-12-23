@@ -15,7 +15,7 @@ contract ProjectSubmission { // Step 1
     }
     mapping (address => University) public universities; // Step 1 (state variable)
     
-    enum ProjectStatus { Waiting, Rejected, Approved, Disabled } // Step 2
+    enum ProjectStatus { WAITING, REJECTED, APPROVED, DISABLED } // Step 2
 
     struct Project { // Step 2
         address author;
@@ -43,7 +43,7 @@ contract ProjectSubmission { // Step 1
 
       projects[hashDoc].author = msg.sender;
       projects[hashDoc].university = university;
-      projects[hashDoc].status = ProjectStatus.Waiting;
+      projects[hashDoc].status = ProjectStatus.WAITING;
 
       uint256 oldBalance = ownerBalance;
       ownerBalance = oldBalance + msg.value;
@@ -51,19 +51,19 @@ contract ProjectSubmission { // Step 1
     }
     
     function disableProject(bytes32 hashDoc) public onlyOwner { // Step 3
-    projects[hashDoc].status = ProjectStatus.Disabled;
+    projects[hashDoc].status = ProjectStatus.DISABLED;
     }
     
     function reviewProject(bytes32 hashDoc, ProjectStatus status) public  onlyOwner { // Step 3
-      require(projects[hashDoc].status == ProjectStatus.Waiting, "Project is not waiting for decision");
-      require(status == ProjectStatus.Rejected || status == ProjectStatus.Approved, "Incorrect status");
+      require(projects[hashDoc].status == ProjectStatus.WAITING, "Project is not waiting for decision");
+      require(status == ProjectStatus.REJECTED || status == ProjectStatus.APPROVED, "Incorrect status");
       projects[hashDoc].status = status;
     }
     
     function donate(bytes32 hashDoc) public payable { // Step 4
       require(msg.value >= 0, "No money donated");
       Project storage project = projects[hashDoc];
-      require(project.status == ProjectStatus.Approved,"Donation for non appoved project");
+      require(project.status == ProjectStatus.APPROVED,"Donation for non appoved project");
       
       uint256 value = uint256(msg.value) / 10;
       ownerBalance = ownerBalance + value;
@@ -81,6 +81,7 @@ contract ProjectSubmission { // Step 1
     function withdraw(bytes32 docHash) public payable { // Step 5
       require(projects[docHash].author == msg.sender, "You are not the author of the project");
       uint256 balance = projects[docHash].balance;
+      require(balance >= 0, "No money to withdraw");
       projects[docHash].balance = 0;
       msg.sender.transfer(balance);
     }
@@ -90,11 +91,13 @@ contract ProjectSubmission { // Step 1
 
     if (msg.sender == owner) {
       balance = ownerBalance;
+      require(balance >= 0, "No money to withdraw");
       ownerBalance = 0;
       owner.transfer(balance);
     }
     else {
       balance = universities[msg.sender].balance;
+      require(balance >= 0, "No money to withdraw");
       universities[msg.sender].balance = 0;
       msg.sender.transfer(balance);
       }

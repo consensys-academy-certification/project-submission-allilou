@@ -42,61 +42,88 @@ let App = {
     // The init() function will be called after the Web3 object is set in the test file
     // This function should update App.web3, App.networkId and App.contract
     async init() {
-
+        this.web3 = web3;
+        this.networkId = await web3.eth.net.getId();
+        const deployedContract = ProjectSubmission.networks[this.networkId];
+        this.contract = new web3.eth.Contract(
+            ProjectSubmission.abi,
+            deployedContract && deployedContract.address,
+        );
     },
 
     // This function should get the account made available by web3 and update App.account
     async getAccount(){
-
+        this.account = web3.eth.defaultAccount;
+        return this.account;
     },
 
     // Read the owner state from the contract and update App.contractOwner
     // Return the owner address
     async readOwnerAddress(){
-
+        this.contractOwner = await this.contract.methods.owner().call();
+        return this.contractOwner;
     },
 
     // Read the owner balance from the contract
     // Return the owner balance
     async readOwnerBalance(){
-
+        let ownerBalance = await this.contract.methods.ownerBalance().call();
+        return ownerBalance;
     },
 
     // Read the state of a provided University account
     // This function takes one address parameter called account    
     // Return the state object 
     async readUniversityState(account){
-
+        let university = await this.contract.methods.universities(account).call();
+        return university;
     },
 
     // Register a university when this function is called
     // This function takes one address parameter called account
     // Return the transaction object 
-    async registerUniversity(account){
-
+    async registerUniversity(account) {
+        let result = await this.contract.methods.registerUniversity(account)
+            .send({ from: this.account }, function(error, transactionHash){
+                if(error) console.log(error, transactionHash);
+            });
+        return {receipt : result};
     },
 
     // Disable the university at the provided address when this function is called
     // This function takes one address parameter called account
     // Return the transaction object
-    async disableUniversity(account){
-
+    async disableUniversity(account) {
+        let result = await this.contract.methods.disableUniversity(account)
+            .send({ from: this.account }, function (error, transactionHash) {
+                if (error) console.log(error, transactionHash);
+            });
+        return { receipt: result };
     },
 
     // Submit a new project when this function is called
     // This function takes 3 parameters
     //   - a projectHash, an address (universityAddress), and a number (amount to send with the transaction)   
     // Return the transaction object 
-    async submitProject(projectHash, universityAddress, amount){
-
-    },
+    async submitProject(projectHash, universityAddress, amount) {
+        const val = web3.utils.toWei(amount.toString());
+        let result = await this.contract.methods.submitProject(projectHash, universityAddress)
+            .send({ from: web3.eth.defaultAccount, value: val }, function (error, transactionHash) {
+                if (error) console.log(error);
+            });
+    return { receipt: result };
+},
 
     // Review a project when this function is called
     // This function takes 2 parameters
     //   - a projectHash and a number (status)
     // Return the transaction object
     async reviewProject(projectHash, status){
-
+        let result = await this.contract.methods.reviewProject(projectHash, status)
+            .send({ from: web3.eth.defaultAccount }, function (error, transactionHash) {
+                if (error) console.log(error, transactionHash);
+            });
+        return { receipt: result };
     },
 
     // Read a projects' state when this function is called
@@ -104,7 +131,8 @@ let App = {
     //   - a projectHash
     // Return the transaction object
     async readProjectState(projectHash){
-
+        let result = await this.contract.methods.projects(projectHash).call();
+        return result;
     },
 
     // Make a donation when this function is called
@@ -112,13 +140,16 @@ let App = {
     //   - a projectHash and a number (amount)
     // Return the transaction object
     async donate(projectHash, amount){
-
+        const val = web3.utils.toWei(amount.toString(), 'milli');
+        let result = await this.contract.methods.donate(projectHash).send({ from: web3.eth.defaultAccount, value: val });
+        return result;
     },
 
     // Allow a university or the contract owner to withdraw their funds when this function is called
     // Return the transaction object
     async withdraw(){
-
+        let result = await this.contract.methods.withdraw().send({ from: web3.eth.defaultAccount });
+        return result;
     },
 
     // Allow a project author to withdraw their funds when this function is called
@@ -127,7 +158,8 @@ let App = {
     // Use the following format to call this function: this.contract.methods['withdraw(bytes32)'](...)
     // Return the transaction object
     async authorWithdraw(projectHash){
-
+        let result = await this.contract.methods.withdraw(projectHash).send({ from: web3.eth.defaultAccount });
+        return result;
     }
 } 
 

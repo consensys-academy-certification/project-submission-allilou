@@ -83,10 +83,7 @@ let App = {
     // This function takes one address parameter called account
     // Return the transaction object 
     async registerUniversity(account) {
-        let result = await this.contract.methods.registerUniversity(account)
-            .send({ from: this.account }, function(error, transactionHash){
-                if(error) console.log(error, transactionHash);
-            });
+        let result = await this.contract.methods.registerUniversity(account).send({ from: web3.eth.defaultAccount });
         return {receipt : result};
     },
 
@@ -94,10 +91,7 @@ let App = {
     // This function takes one address parameter called account
     // Return the transaction object
     async disableUniversity(account) {
-        let result = await this.contract.methods.disableUniversity(account)
-            .send({ from: this.account }, function (error, transactionHash) {
-                if (error) console.log(error, transactionHash);
-            });
+        let result = await this.contract.methods.disableUniversity(account).send({ from: web3.eth.defaultAccount });
         return { receipt: result };
     },
 
@@ -106,11 +100,10 @@ let App = {
     //   - a projectHash, an address (universityAddress), and a number (amount to send with the transaction)   
     // Return the transaction object 
     async submitProject(projectHash, universityAddress, amount) {
-        const val = web3.utils.toWei(amount.toString());
-        let result = await this.contract.methods.submitProject(projectHash, universityAddress)
-            .send({ from: web3.eth.defaultAccount, value: val }, function (error, transactionHash) {
-                if (error) console.log(error);
-            });
+        const val = await web3.utils.toWei(amount.toString(), 'ether');
+        const txParams = { from: web3.eth.defaultAccount, value: val, gas : gasAmount}
+        
+        const result = await this.contract.methods.submitProject(projectHash, universityAddress).send( txParams );
     return { receipt: result };
 },
 
@@ -119,10 +112,7 @@ let App = {
     //   - a projectHash and a number (status)
     // Return the transaction object
     async reviewProject(projectHash, status){
-        let result = await this.contract.methods.reviewProject(projectHash, status)
-            .send({ from: web3.eth.defaultAccount }, function (error, transactionHash) {
-                if (error) console.log(error, transactionHash);
-            });
+        let result = await this.contract.methods.reviewProject(projectHash, status).send({ from: web3.eth.defaultAccount });
         return { receipt: result };
     },
 
@@ -141,15 +131,16 @@ let App = {
     // Return the transaction object
     async donate(projectHash, amount){
         const val = web3.utils.toWei(amount.toString(), 'milli');
-        let result = await this.contract.methods.donate(projectHash).send({ from: web3.eth.defaultAccount, value: val });
-        return result;
+        const txParams = { from: web3.eth.defaultAccount, value: val, gas : gasAmount }
+        let result = await this.contract.methods.donate(projectHash).send(txParams);
+        return { receipt: result };
     },
 
     // Allow a university or the contract owner to withdraw their funds when this function is called
     // Return the transaction object
     async withdraw(){
         let result = await this.contract.methods.withdraw().send({ from: web3.eth.defaultAccount });
-        return result;
+        return { receipt: result };
     },
 
     // Allow a project author to withdraw their funds when this function is called
@@ -158,8 +149,8 @@ let App = {
     // Use the following format to call this function: this.contract.methods['withdraw(bytes32)'](...)
     // Return the transaction object
     async authorWithdraw(projectHash){
-        let result = await this.contract.methods.withdraw(projectHash).send({ from: web3.eth.defaultAccount });
-        return result;
+        let result = await this.contract.methods['withdraw(bytes32)'](projectHash).send({ from: web3.eth.defaultAccount });
+        return { receipt: result };
     }
 } 
 

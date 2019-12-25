@@ -47,7 +47,7 @@ contract ProjectSubmission { // Step 1
 
       uint256 oldBalance = ownerBalance;
       ownerBalance = oldBalance + msg.value;
-      require(ownerBalance >= oldBalance, "Adition overflow");
+      require(ownerBalance >= oldBalance, "Addition overflow");
     }
     
     function disableProject(bytes32 hashDoc) public onlyOwner { // Step 3
